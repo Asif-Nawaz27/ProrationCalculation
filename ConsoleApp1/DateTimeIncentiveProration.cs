@@ -9,12 +9,12 @@ namespace ConsoleApp1
         /// <param name="endDate">The end date (I33 in formula)</param>
         /// <param name="startDate">The start date (H33 in formula)</param>
         /// <returns>The number of days between startDate and (endDate + 1 day)</returns>
-        public static int Days(DateTime endDate, DateTime startDate)
+        public static decimal Days(DateTime startDate,DateTime endDate)
         {
             // DAYS(I33+1,H33) - Add 1 day to endDate before calculating
             DateTime endDatePlusOne = endDate.AddDays(1);
             TimeSpan difference = endDatePlusOne.Date - startDate.Date;
-            return (int)difference.TotalDays;
+            return (decimal)difference.TotalDays;
         }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace ConsoleApp1
         /// <param name="startDate">The start date (H50 in formula)</param>
         /// <param name="endDate">The end date (I50 in formula)</param>
         /// <returns>The rounded number of months</returns>
-        public static int MonthRound(DateTime startDate, DateTime endDate)
+        public static decimal MonthRound(DateTime startDate, DateTime endDate)
         {
             try
             {
@@ -100,7 +100,7 @@ namespace ConsoleApp1
         /// <param name="startDate">The start date (H50 in formula)</param>
         /// <param name="endDate">The end date (I50 in formula)</param>
         /// <returns>The calculated months up value</returns>
-        public static int MonthUp(DateTime startDate, DateTime endDate)
+        public static decimal MonthUp(DateTime startDate, DateTime endDate)
         {
             try
             {
@@ -123,13 +123,13 @@ namespace ConsoleApp1
 
         /// <summary>
         /// Calculates months down between two dates for incentive proration.
-        /// Formula: =IFERROR(IF(AND(MONTH(H50)=MONTH(I50),YEAR(H50)=YEAR(I50),I50-H50>0),IF(I50-H50+1>=DAY(EOMONTH(H50,0)),1,0),
-        /// DATEDIF(EOMONTH(H50,0),EOMONTH(I50,-1)+1,"M") + (IF(DAY(H50)<=DAY(EOMONTH(H50,0))/2,1,0)) + (IF(DAY(I50)>DAY(EOMONTH(I50,0))/2,1,0))),0)
+        /// Formula: =IFERROR(IF(AND(MONTH(H34)=MONTH(I34),YEAR(H34)=YEAR(I34),I34-H34>0),IF(I34-H34+1>=DAY(EOMONTH(H34,0)),1,0),
+        /// DATEDIF(EOMONTH(H34,0),EOMONTH(I34,-1)+1,"M")+(IF(DAY(H34)=1,1,0))+(IF(DAY(I34)=DAY(EOMONTH(I34,0)),1,0))),0)
         /// </summary>
-        /// <param name="startDate">The start date (H50 in formula)</param>
-        /// <param name="endDate">The end date (I50 in formula)</param>
+        /// <param name="startDate">The start date (H34 in formula)</param>
+        /// <param name="endDate">The end date (I34 in formula)</param>
         /// <returns>The calculated months down value</returns>
-        public static int MonthDown(DateTime startDate, DateTime endDate)
+        public static decimal MonthDown(DateTime startDate, DateTime endDate)
         {
             try
             {
@@ -139,7 +139,7 @@ namespace ConsoleApp1
                     int daysDifference = (endDate - startDate).Days;
                     int daysInMonth = DateTime.DaysInMonth(startDate.Year, startDate.Month);
                     
-                    // IF(I50-H50+1>=DAY(EOMONTH(H50,0)),1,0)
+                    // IF(I34-H34+1>=DAY(EOMONTH(H34,0)),1,0)
                     // Note: +1 is added to the days difference
                     return (daysDifference + 1) >= daysInMonth ? 1 : 0;
                 }
@@ -149,12 +149,12 @@ namespace ConsoleApp1
                 }
                 else
                 {
-                    // Different months/years logic (same as MonthRound)
-                    // EOMONTH(H50,0) - End of month for startDate
+                    // Different months/years logic
+                    // EOMONTH(H34,0) - End of month for startDate
                     DateTime endOfStartMonth = new DateTime(startDate.Year, startDate.Month, 
                         DateTime.DaysInMonth(startDate.Year, startDate.Month));
                     
-                    // EOMONTH(I50,-1) - End of previous month before endDate
+                    // EOMONTH(I34,-1) - End of previous month before endDate
                     DateTime endOfPreviousMonth;
                     if (endDate.Month == 1)
                     {
@@ -167,10 +167,10 @@ namespace ConsoleApp1
                             DateTime.DaysInMonth(endDate.Year, prevMonth));
                     }
                     
-                    // EOMONTH(I50,-1)+1 - First day of endDate's month
+                    // EOMONTH(I34,-1)+1 - First day of endDate's month
                     DateTime firstDayOfEndMonth = endOfPreviousMonth.AddDays(1);
                     
-                    // DATEDIF(EOMONTH(H50,0),EOMONTH(I50,-1)+1,"M") - Full months between
+                    // DATEDIF(EOMONTH(H34,0),EOMONTH(I34,-1)+1,"M") - Full months between
                     int fullMonths = 0;
                     if (firstDayOfEndMonth > endOfStartMonth)
                     {
@@ -179,13 +179,12 @@ namespace ConsoleApp1
                         fullMonths = Math.Max(0, fullMonths);
                     }
                     
-                    // (IF(DAY(H50)<=DAY(EOMONTH(H50,0))/2,1,0))
-                    int daysInStartMonth = DateTime.DaysInMonth(startDate.Year, startDate.Month);
-                    int startDayBonus = startDate.Day <= (daysInStartMonth / 2.0) ? 1 : 0;
+                    // (IF(DAY(H34)=1,1,0)) - Add 1 if start date is the 1st of the month
+                    int startDayBonus = startDate.Day == 1 ? 1 : 0;
                     
-                    // (IF(DAY(I50)>DAY(EOMONTH(I50,0))/2,1,0))
+                    // (IF(DAY(I34)=DAY(EOMONTH(I34,0)),1,0)) - Add 1 if end date is the last day of the month
                     int daysInEndMonth = DateTime.DaysInMonth(endDate.Year, endDate.Month);
-                    int endDayBonus = endDate.Day > (daysInEndMonth / 2.0) ? 1 : 0;
+                    int endDayBonus = endDate.Day == daysInEndMonth ? 1 : 0;
                     
                     return fullMonths + startDayBonus + endDayBonus;
                 }
@@ -203,16 +202,16 @@ namespace ConsoleApp1
         /// <param name="startDate">The start date (H50 in formula)</param>
         /// <param name="endDate">The end date (I50 in formula)</param>
         /// <returns>The number of complete weeks between the dates</returns>
-        public static int WeekDown(DateTime startDate, DateTime endDate)
+        public static decimal WeekDown(DateTime startDate, DateTime endDate)
         {
             try
             {
                 // DAYS(I50+1,H50) - Calculate days with endDate+1
-                int days = Days(endDate, startDate);
-                
+                decimal days = Days(startDate,endDate);
+
                 // ROUNDDOWN(days/7,0) - Divide by 7 and round down
-                int weeks = (int)Math.Floor(days / 7.0);
-                
+                decimal weeks = Math.Floor(days / 7.0m);
+
                 return weeks;
             }
             catch
@@ -228,16 +227,16 @@ namespace ConsoleApp1
         /// <param name="startDate">The start date (H50 in formula)</param>
         /// <param name="endDate">The end date (I50 in formula)</param>
         /// <returns>The number of weeks between the dates, rounded up</returns>
-        public static int WeekUp(DateTime startDate, DateTime endDate)
+        public static decimal WeekUp(DateTime startDate, DateTime endDate)
         {
             try
             {
                 // DAYS(I50+1,H50) - Calculate days with endDate+1
-                int days = Days(endDate, startDate);
+                decimal days = Days(startDate, endDate);
                 
                 // ROUNDUP(days/7,0) - Divide by 7 and round up
-                int weeks = (int)Math.Ceiling(days / 7.0);
-                
+                decimal weeks = Math.Ceiling(days / 7.0m);
+
                 return weeks;
             }
             catch
@@ -254,7 +253,7 @@ namespace ConsoleApp1
         /// <param name="startDate">The start date (H50 in formula)</param>
         /// <param name="endDate">The end date (I50 in formula)</param>
         /// <returns>The number of days between the dates using 360-day year calculation</returns>
-        public static int Days360(DateTime startDate, DateTime endDate)
+        public static decimal Days360(DateTime startDate, DateTime endDate)
         {
             try
             {

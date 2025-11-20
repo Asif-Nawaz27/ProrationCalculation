@@ -1,7 +1,7 @@
 ﻿//Round proration
 using ConsoleApp1;
 
-//ProgramSalary.CalculateAllDays();
+//ProgramSalary.CalculateAllProration();
 ProgramIncentive.CalculateAllProration();
 //var salaryData = new List<(DateTime LastSalaryEffDate, DateTime NewSalaryEffDate)>();
 

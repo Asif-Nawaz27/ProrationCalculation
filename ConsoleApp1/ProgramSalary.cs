@@ -2,7 +2,7 @@ namespace ConsoleApp1
 {
     public class ProgramSalary
     {
-        public static void CalculateAllDays()
+        public static void CalculateAllProration()
         {
             // Data from the attached image
             var salaryData = new[]
@@ -27,38 +27,38 @@ namespace ConsoleApp1
                 new { LastSalaryEffDate = new DateTime(2023, 2, 2), NewSalaryEffDate = new DateTime(2024, 4, 1) },
                 
             };
-
-
            
             Console.WriteLine("Last Salary Eff Date\tNew Salary Eff Date\tDays\tMonthRound\tMonthUp\tMonthDown\tWeekDown\tWeekUp\tIsLeapYear");
             Console.WriteLine("=".PadRight(140, '='));
 
-
-
-
-
             foreach (var data in salaryData)
             {
-                decimal periodDays = DateTimeSalaryProration.IsLeapYear(data.LastSalaryEffDate, data.NewSalaryEffDate) ? 366 : 365;
-                decimal periodMonths = 12;
-                decimal periodWeeks = 52;
-
-                int days = DateTimeSalaryProration.Days(data.NewSalaryEffDate, data.LastSalaryEffDate);
-                int MonthRound = DateTimeSalaryProration.MonthRound(data.LastSalaryEffDate, data.NewSalaryEffDate);
-                int MonthUp = DateTimeSalaryProration.MonthUp(data.LastSalaryEffDate, data.NewSalaryEffDate);
-                int MonthDown = DateTimeSalaryProration.MonthDown(data.LastSalaryEffDate, data.NewSalaryEffDate);
-                int WeekDown = DateTimeSalaryProration.WeekDown(data.LastSalaryEffDate, data.NewSalaryEffDate);
-                int WeekUp = DateTimeSalaryProration.WeekUp(data.LastSalaryEffDate, data.NewSalaryEffDate);
+                decimal days = DateTimeSalaryProration.Days(data.LastSalaryEffDate, data.NewSalaryEffDate);
+                decimal MonthRound = DateTimeSalaryProration.MonthRound(data.LastSalaryEffDate, data.NewSalaryEffDate);
+                decimal MonthUp = DateTimeSalaryProration.MonthUp(data.LastSalaryEffDate, data.NewSalaryEffDate);
+                decimal MonthDown = DateTimeSalaryProration.MonthDown(data.LastSalaryEffDate, data.NewSalaryEffDate);
+                decimal WeekDown = DateTimeSalaryProration.WeekDown(data.LastSalaryEffDate, data.NewSalaryEffDate);
+                decimal WeekUp = DateTimeSalaryProration.WeekUp(data.LastSalaryEffDate, data.NewSalaryEffDate);
                 bool isLeapYear = DateTimeSalaryProration.IsLeapYear(data.LastSalaryEffDate, data.NewSalaryEffDate);
                 
-                
-                
                 Console.WriteLine($"{data.LastSalaryEffDate:M/d/yyyy}\t\t{data.NewSalaryEffDate:M/d/yyyy}\t\t{days}\t{MonthRound}\t\t{MonthUp}\t{MonthDown}\t\t{WeekDown}\t\t{WeekUp}\t\t{isLeapYear}");
-                decimal daysProration = Math.Round(DateTimeSalaryProration.Days(data.NewSalaryEffDate, data.LastSalaryEffDate) / periodDays * 100, 7);
-                Console.WriteLine($"Days proration: {daysProration}");
 
-                decimal MonthRoundProration = Math.Round(DateTimeSalaryProration.MonthRound(data.LastSalaryEffDate, data.NewSalaryEffDate) / periodMonths * 100, 7);
-                Console.WriteLine($"MonthRound proration: {MonthRoundProration}");
+                decimal totalDays = isLeapYear ? 366 : 365;
+                decimal DaysProration = Math.Round(DateTimeSalaryProration.Days(data.LastSalaryEffDate, data.NewSalaryEffDate) / totalDays * 100, 7);
+                decimal MonthRoundProration = Math.Round(DateTimeSalaryProration.MonthRound(data.LastSalaryEffDate, data.NewSalaryEffDate) / 12 * 100, 7);
+                decimal MonthUpProration = Math.Round(DateTimeSalaryProration.MonthUp(data.LastSalaryEffDate, data.NewSalaryEffDate) / 12 * 100, 7);
+                decimal MonthDownProration = Math.Round(DateTimeSalaryProration.MonthDown(data.LastSalaryEffDate, data.NewSalaryEffDate) / 12 * 100, 7);
+                decimal WeekDownProration = Math.Round(DateTimeSalaryProration.WeekDown(data.LastSalaryEffDate, data.NewSalaryEffDate) / 52 * 100, 7);
+                decimal WeekUpProration = Math.Round(DateTimeSalaryProration.WeekUp(data.LastSalaryEffDate, data.NewSalaryEffDate) / 53 * 100, 7);
+                decimal Days360Proration = Math.Round(DateTimeSalaryProration.Days360(data.LastSalaryEffDate, data.NewSalaryEffDate) / 360 * 100, 7);
+
+                Console.WriteLine($"Days Proration: {DaysProration}");
+                Console.WriteLine($"WeekDown Proration: {WeekDownProration}");
+                Console.WriteLine($"WeekUp Proration: {WeekUpProration}");
+                Console.WriteLine($"MonthRound Proration: {MonthRoundProration}");
+                Console.WriteLine($"MonthUp Proration: {MonthUpProration}");
+                Console.WriteLine($"MonthDown Proration: {MonthDownProration}");
+                Console.WriteLine($"Days360 Proration: {Days360Proration}");
 
                 Console.WriteLine("=".PadRight(140, '='));
             }
